@@ -21,8 +21,31 @@ view m =
         [ leftPanel m
         , visContainer
         , rightPanel m
+        , dialog m
         ]
 
+dialog : Model -> Html Msg
+dialog m =
+    div [ class "w3-modal"
+        , style "display" (if m.dialogOpened then "block" else "none") ]
+        [ div [ class "w3-modal-content" ] 
+              [ div [ class "w3-container" ]
+                    [ span [ class "w3-button w3-display-topright"
+                           , E.onClick DialogOpen ]
+                           [ i [ class "material-icons" ] [ text "close" ] ]
+                    , h1 [] [ text "Add an article by ID" ]
+                    , select [ E.onInput Model.SelectChanged ]
+                        [ option [] [ text "Semantic Scholar" ]
+                        , option [] [ text "ArXiv" ]
+                        , option [] [ text "DOI" ]
+                        ]
+                    , input [ type_ "text"
+                            , value m.addBar
+                            , E.onInput Model.AddBarChanged ] []
+                    , button [ E.onClick (onAdd m) ] [ text "Add" ]
+                    ]
+              ] 
+        ]
 
 visContainer : Html Msg
 visContainer =
@@ -154,13 +177,20 @@ rightPanel m =
         , style "width" "20%"
         , class "column"
         ]
-        (selectedTabs m
-            :: [ if m.tab == Info then
-                    infoPanel m
+        (
+            if 
+                m.selectedNode == Nothing 
+            then
+                [ h1 [] [ text "Select a node on the graph" ] ]
+            else
+            (selectedTabs m
+                :: [ if m.tab == Info then
+                        infoPanel m
 
-                 else
-                    referenceList m
-               ]
+                     else
+                        referenceList m
+                   ]
+            )
         )
 
 
@@ -247,41 +277,33 @@ leftPanel : Model -> Html Msg
 leftPanel m =
     div [ class "column", style "position" "absolute", style "left" "10px", style "width" "20%" ]
         [ div [ class "upbuttons" ]
-            [ select [ E.onInput Model.SelectChanged ]
-                [ option [] [ text "Semantic Scholar" ]
-                , option [] [ text "ArXiv" ]
-                , option [] [ text "DOI" ]
-                ]
-            , input [ type_ "text", value m.addBar, E.onInput Model.AddBarChanged ] []
-            , button [ E.onClick (onAdd m) ] [ text "Add" ]
-            , br [] []
-
-            --, a [ href <| "data:text/plain;charset=utf-8," ++ (encodePaperMap m.paperMap)
-            --    , download "demo.txt" ]
-            --    [ text "Save" ]
-            , button [ E.onClick SaveFile ] [ text "Save" ]
-            , br [] []
-            , input [ type_ "file", id "files" ] []
-            , br [] []
+            [ div [ class "icon-bar" ]
+                  [ i [ class "material-icons", E.onClick DialogOpen, title "Add an article with ID" ] [ text "add_circle" ]
+                  , i [ class "material-icons", E.onClick SaveFile, title "Save bibliography graph" ] [ text "save" ]
+                  , input [ type_ "file", id "files", style "display" "none" ] []
+                  , label [ for "files", title "Open previously saved file" ] [ i [ class "material-icons" ] [ text "folder_open" ] ]
+                  ]
             , div []
                 [ input
                     [ type_ "text"
                     , value m.searchMod.searchBar
+                    , placeholder "Search on Semantic Scholar"
                     , E.onInput (SMsg << Search.BarChanged)
                     ]
                     []
-                , button
-                    [ E.onClick (SMsg Search.Clicked)
-                    , disabled m.searchMod.waiting
-                    ]
-                    [ text
-                        (if m.searchMod.waiting then
-                            "loading..."
+                --, button
+                --    [ E.onClick (SMsg Search.Clicked)
+                --    , disabled m.searchMod.waiting
+                --    ]
+                --    [ text
+                --        (if m.searchMod.waiting then
+                --            "loading..."
 
-                         else
-                            "Search"
-                        )
-                    ]
+                --         else
+                --            "Search"
+                --        )
+                --    ]
+                , i [ class "material-icons", E.onClick (SMsg Search.Clicked), title "Search on Semantic Scholar" ] [ text "search" ]
                 ]
             ]
         , div [ class "paperlist" ]

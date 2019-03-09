@@ -76,9 +76,25 @@ setInitialNick p =
         firstWord = 
             case (String.split " " p.title) of
                 [] -> ""
-                h::t -> h
+                h::t -> String.left 5 h
+
+        firstAuthor =
+            case p.authors of
+                [] -> ""
+                h::t -> case last_el (String.split " " h) of
+                    Nothing -> ""
+                    Just s -> String.left 5 s
+
+        year = String.right 2 (String.fromInt p.year)
     in
-    {p | nickname=firstWord }
+    {p | nickname=firstAuthor ++ year ++ firstWord }
+
+last_el: List a -> Maybe a
+last_el l =
+    case l of
+        [] -> Nothing
+        h::[] -> Just h
+        h::t -> last_el t
 
 getConnection : Paper -> IntDict.IntDict Paper -> (List Int, List Int)
 getConnection paper dic =

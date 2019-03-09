@@ -66,6 +66,7 @@ type Msg
     | InfluentialClick
     | SetSortType String
     | SMsg SearchMsg
+    | DialogOpen
 
 
 type Tab
@@ -100,6 +101,7 @@ type alias Model =
     , influentialFilter : Bool
     , sortType : SortType
     , searchMod : SModel
+    , dialogOpened : Bool
     }
 
 
@@ -147,6 +149,7 @@ init _ =
       , influentialFilter = False
       , sortType = Alphabetical
       , searchMod = initSearch
+      , dialogOpened = False
       }
     , Cmd.none
     )
@@ -177,7 +180,7 @@ update msg model =
         GotJson result ->
             case result of
                 Ok s ->
-                    addPaperToGraph (setInitialNick s) model
+                    addPaperToGraph (setInitialNick s) { model | dialogOpened = False }
 
                 Err e ->
                     let
@@ -317,6 +320,9 @@ update msg model =
                     searchReducer smsg model.searchMod
             in
             ( { model | searchMod = smod }, Cmd.map SMsg scmd )
+
+        DialogOpen ->
+            ( { model | dialogOpened = not model.dialogOpened }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

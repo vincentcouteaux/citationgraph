@@ -41,6 +41,12 @@ body {
     background-color: rgba(91, 154, 255, 0.2);
 }
 
+.upbuttons i {
+    font-size: 2em;
+    cursor: pointer;
+    flex: 1;
+}
+
 .paperlist {
     flex: 1 1 auto;
     overflow: scroll;
@@ -48,4 +54,11 @@ body {
 
 .upbuttons {
     flex: 0 1 auto;
+}
+ 
+.icon-bar {
+    display: flex;
+    flex-grow: 1;
+    padding-left: 20%;
+    padding-right: 20%;
 }
