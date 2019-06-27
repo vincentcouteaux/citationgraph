@@ -59,6 +59,7 @@ type Msg
     | Unselected ()
     | FilterChanged String
     | NicknameChanged String
+    | NotesChanged String
     | SelectChanged String
     | AddBarChanged String
     | GotFile String
@@ -173,7 +174,7 @@ update msg model =
                 in
                 addPaperToGraph
                     (setInitialNick
-                        (Paper paperInfo.title paperInfo.authors paperInfo.year paperInfo.title [] [] "" Nothing Nothing Nothing)
+                        (Paper paperInfo.title paperInfo.authors paperInfo.year paperInfo.title [] [] "" Nothing Nothing Nothing "")
                     )
                     model
 
@@ -242,6 +243,29 @@ update msg model =
                                 Just y ->
                                     y.year
                         }
+                    )
+
+        NotesChanged s ->
+            case model.selectedNode of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just index ->
+                    ( { model
+                        | paperMap =
+                            IntDict.update
+                                index
+                                (\mv ->
+                                    case mv of
+                                        Nothing ->
+                                            Nothing
+
+                                        Just v ->
+                                            Just { v | notes = s }
+                                )
+                                model.paperMap
+                      }
+                    , Cmd.none
                     )
 
         SelectChanged s ->
